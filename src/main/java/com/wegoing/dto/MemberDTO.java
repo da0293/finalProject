@@ -24,12 +24,13 @@ public class MemberDTO {
 	private String nickname;
 	private String pw;
 	private String tel;
-	private Blob image;
+	private String image;
 	private String auth;
 	private String join_dt;
 	
 	private ClubMemberDTO cldto;
 	private TodoDTO tododto;
+	private ClubDTO clubdto;
 
 	public String getEmail() {
 		return email;
@@ -71,11 +72,11 @@ public class MemberDTO {
 		this.tel = tel;
 	}
 
-	public Blob getImage() {
+	public String getImage() {
 		return image;
 	}
 
-	public void setImage(Blob image) {
+	public void setImage(String image) {
 		this.image = image;
 	}
 
@@ -109,6 +110,14 @@ public class MemberDTO {
 
 	public TodoDTO getTododto() {
 		return tododto;
+	}
+
+	public ClubDTO getClubdto() {
+		return clubdto;
+	}
+
+	public void setClubdto(ClubDTO clubdto) {
+		this.clubdto = clubdto;
 	}
 	
 	
