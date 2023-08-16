@@ -3,9 +3,34 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
  <mapper namespace="com.wegoing.dao.ClubDAO">
- 	<insert id="createClub" parameterType="com.wegoing.dto.ClubDTO"  useGeneratedKeys="true"
+ 	<insert id="createClub" parameterType="ClubDTO"  useGeneratedKeys="true"
         keyProperty="clno" keyColumn="clno">
 		INSERT INTO club
 		values(null, #{clname}, #{clexplain}, default )
 	</insert>
+	<select id="readOne" parameterType="int" resultType="com.wegoing.dto.ClubDTO">
+	    SELECT clno, clname, clexplain, cre_dt
+	    FROM club
+	    WHERE clno = #{clno}
+	</select>
+	<update id="updateOne" parameterType="com.wegoing.dto.ClubDTO">
+	   UPDATE club
+	   SET clname = #{clname}, clexplain = #{clexplain}
+	   WHERE clno = #{clno}
+	</update>
+	<select id="selectAdminClub" parameterType="String" resultType="ClubDTO">
+		select A.clno, A.clname, A.clexplain, A.cre_dt
+		from club A 
+		inner join clubmember B on A.clno = B.clno
+		inner join member C on C.email = B.email
+		where C.email=#{email} and B.crank=#{crank}
+		order by A.clno desc
+	</select>
+	<select id="findClub" parameterType="String" resultType="ClubDTO">
+		select A.clno, A.clname, A.clexplain
+		from club A
+		inner join clubmember B on A.clno = B.clno
+		inner join member C on C.email = B.email
+		where A.clname like CONCAT('%',#{clname},'%') and C.email = #{email}
+	</select>
  </mapper>

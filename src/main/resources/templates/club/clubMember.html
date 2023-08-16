@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      layout:decorate="~{/layout/club}">
+
+<th:block layout:fragment="content">
+    <div class="clubmember-container">
+        <div class="title">
+            <p class="title-text">협업공간 멤버관리</p>
+            <p class="info-text">등록되어 있는 파트너만 멤버로 초대할 수 있습니다.</p>
+        </div>
+        <div class="list-box">
+            <div class="partner">
+				<form th:action="@{/}" method="post">
+					<div th:each="partner : ${partnerList}" th:if="${!partner.email.equals(hostInfo.email)}">
+						<div class="partner-list-items">
+							<div class="partner-info">
+								<input type="hidden" th:value="${club.clno}" class="clno" name="clno" /> 
+								<input type="hidden" th:value="${partner.email}" class="email" name="email" />
+								<p class="partner-name" th:text="${partner.name}"></p>
+								<p class="partner-email" th:text="${partner.email}"></p>
+							</div>
+							<button type="button" th:if="${!#lists.contains(emailList, partner.email)}" 
+							th:attrappend="id=${partnerStat.index}" class="btn btn-primary add-btn">초대</button>	
+							<p th:unless="${!#lists.contains(emailList, partner.email)}" class="request">초대 완료</p>							
+						</div>
+					</div>
+				</form>
+			</div>
+			<span class="add">>></span>
+            <div class="clubmember">
+                <form th:action="@{/}" method="post">
+	                <div th:each="clubmember : ${memberList}">
+	                    <div class="clubmember-list-items">
+	                        <div class="clubmember-info">
+	                            <input type="hidden" th:value="${clubmember.cldto.cno}" class="cno" name="cno" />
+	                            <p class="clubmember-name" th:text="${clubmember.name}"></p>
+	                            <p class="clubmember-email" th:text="${clubmember.email}"></p>
+	                        </div>
+	                        <div>                            
+	                            <p class="status clubhost" th:if="${clubmember.cldto.crank == 'host'}">관리자</p>
+	                            <p class="status wait-accept" th:if="${clubmember.cldto.cstatus == 'n'}">대기</p>
+	                            <button type="button" class="status delete-btn" th:attrappend="id=${clubmemberStat.index}"
+	                            th:if="${clubmember.cldto.cstatus.equals('y') && !clubmember.cldto.crank.equals('host')
+	                                       && #authentication.principal.username.equals(hostInfo.email)}">x</button>
+	                        </div>
+	                    </div>
+	                </div>
+               </form>
+            </div>
+        </div>
+    </div>
+</th:block>
+<script type="text/javascript" src="../js/clubMember.js"></script>

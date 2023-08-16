@@ -5,18 +5,58 @@
   
 <mapper namespace="com.wegoing.dao.MemberDAO">
     <select id="findMemberByEmail" parameterType="String" resultType="com.wegoing.dto.MemberDTO">
-        select *
+        select email, name, nickname, pw, tel, image, auth, join_dt
         from member
         where email = #{email}
     </select>
     <insert id="insertOne" parameterType="com.wegoing.dto.MemberDTO">
         insert into member
-        values (#{email}, #{name}, #{nickname}, #{pw}, #{tel}, null, #{auth}, sysdate())
-    </insert>
-    <select id="findEmailByNameAndTel" parameterType="com.wegoing.dto.MemberDTO" resultType="String">
+        values (#{email}, #{name}, #{nickname}, #{pw}, #{tel}, null, 'ROLE_USER', sysdate())
+    </insert>    
+    <select id="findNickNameCheck" parameterType="String" resultType="MemberDTO">
+ 		SELECT email, name, nickname, pw, tel, image, auth, join_dt
+		FROM member
+		WHERE nickname = #{nickname}
+ 	</select>
+ 	<select id="findEmailByNameAndTel" parameterType="com.wegoing.dto.MemberDTO" resultType="String">
         select email
         from member
         where name = #{name}
         and tel = #{tel}
+    </select>
+    <update id="updatePw" parameterType="com.wegoing.dto.MemberDTO">
+        update member
+        set pw = #{pw}
+        where email = #{email}
+    </update>
+ 	<select id="selectMyPartners" parameterType="String" resultType="MemberDTO" >
+		select email, name, nickname, pw, tel, image, auth, join_dt
+		from member
+		where email in ( select pemail
+							from partner
+							where email = #{email} )
+	</select>
+ 
+    <resultMap type="com.wegoing.dto.MemberDTO" id="ClubMemberInfoMap">
+	        <id column="email" property="email"/>
+	        <result column="name" property="name"/>
+       <association property="cldto" javaType="ClubMemberDTO">
+	        <result column="cno" property="cno"/>
+	        <result column="clno" property="clno"/>
+	        <result column="crank" property="crank"/>
+	        <result column="cstatus" property="cstatus"/>
+	        <result column="email" property="email"/>        
+       </association>
+    </resultMap>
+    <select id="selectClubMembersInfo" parameterType="int" resultMap="ClubMemberInfoMap">
+        SELECT m.email, m.name, c.cno, c.clno, c.crank, c.cstatus
+        FROM member AS m
+        INNER JOIN clubmember AS c
+        ON m.email = c.email
+        WHERE c.clno = #{clno}
+    </select>
+    <select id="getMemberAuth" parameterType="String" resultType="String">
+    	SELECT auth FROM member
+    	WHERE email =#{email}
     </select>
 </mapper>

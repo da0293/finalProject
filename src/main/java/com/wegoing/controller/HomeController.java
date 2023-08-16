@@ -1,20 +1,22 @@
 package com.wegoing.controller;
 
-import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.wegoing.dto.ClubDTO;
 import com.wegoing.dto.PrincipalDetails;
-import com.wegoing.service.ClubMemberService;
+import com.wegoing.enumpackage.Dstatus;
 import com.wegoing.service.ClubService;
+import com.wegoing.service.DocumentService;
+import com.wegoing.util.ClubUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,36 +24,62 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 public class HomeController {
 
-	private ClubMemberService cms; 
+//	@Resource(name="clubUtil")
+//	private clubUtil clubUtil; 
+	private final DocumentService ds; 
+	private final ClubService cs;
 	
-	@Autowired
-	public HomeController(ClubMemberService cmservice) {
-		this.cms = cmservice; 
+	public HomeController(DocumentService ds, ClubService cs) {
+		this.ds = ds; 
+		this.cs = cs;
 	}
+	
 	
 	@GetMapping("/main")
 	public String main(@AuthenticationPrincipal PrincipalDetails userDetails, Model model) {
 		model.addAttribute("user", userDetails.getMdto());
-		// 여기서부터 
-		String loginEmail =""; 
-		if( userDetails != null ) loginEmail = userDetails.getMdto().getEmail();
-		List<ClubDTO> myClub= cms.selectAll(loginEmail);
-		model.addAttribute("myClub", myClub); // 여기까지는 보여지는 협업툴 사이트 보여지는 html로 이동할때마다 필요함 - 사이드바 내협업리스트 관련 
-		System.out.println("main돌아옴");
+		model.addAttribute("myClub", ClubUtil.getClub(userDetails)); 
+		String crank = "host";
+		model.addAttribute("adminClub", cs.getAdminClub(userDetails.getMdto().getEmail(), crank));
 		return "home/mainpage";
 	}
 	
-	@GetMapping("/partner")
-	public String partnerForm(@AuthenticationPrincipal PrincipalDetails userDetails, Model model) {
-		String loginEmail =""; 
-		if( userDetails != null ) loginEmail = userDetails.getMdto().getEmail();
-		List<ClubDTO> myClub= cms.selectAll(loginEmail);
-		model.addAttribute("myClub", myClub);
-		return "partner/partnerForm";
+	@PostMapping("home/updateChart") 	
+	public @ResponseBody List<Integer> updateChart(@RequestParam("clno")int clno) {
+		
+		List<Integer> dstausChart = new ArrayList<>();
+		// 협업공간 이름으로 협업공간 문서에 있는 상태 
+		int start = ds.getDstatusCount(Dstatus.start.dstatus(), clno);		
+		int ongoing = ds.getDstatusCount(Dstatus.ongoing.dstatus(), clno);
+		int stop = ds.getDstatusCount(Dstatus.stop.dstatus(), clno);
+		int done = ds.getDstatusCount(Dstatus.done.dstatus(), clno);
+		int sum = start + ongoing + stop + done; 
+		
+		dstausChart.add(getPercent(start, sum));
+		dstausChart.add(getPercent(ongoing, sum));
+		dstausChart.add(getPercent(stop, sum));
+		dstausChart.add(getPercent(done, sum));
+		
+		return dstausChart; 
+        
 	}
 	
-	@PostMapping("/partner")
-	public String submitForm() {
-		return "partner/partnerForm";
+	public int getPercent(int value, int sum ) { // 차트용
+		double i = (double)value/sum;
+		int result = (int) Math.round((i*100));
+		return result; 
+	}
+	
+	// 협업공간이름 검색
+	@GetMapping("/search") 	
+	public String searchClubName(@RequestParam(value = "searchValue")String searchValue, Model model,@AuthenticationPrincipal PrincipalDetails userDetails ) {
+		// 해당 단어가 속하는지  
+		log.info(searchValue);
+		List<ClubDTO> clubList = cs.searchKeyword(searchValue, userDetails.getMdto().getEmail() );
+		model.addAttribute("clubList", clubList);
+		log.info( "search" + searchValue);
+		model.addAttribute("myClub", ClubUtil.getClub(userDetails)); 
+		return "home/search";
+        
 	}
 }

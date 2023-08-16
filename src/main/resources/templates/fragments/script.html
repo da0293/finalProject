@@ -17,7 +17,7 @@
                 <div class="modal-body">로그아웃 버튼을 누르시면 WEGOING에서 완전히 로그아웃됩니다.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-                    <a class="btn btn-primary" href="login.html">로그아웃</a>
+                    <a class="btn btn-primary" href="/logout">로그아웃</a>
                 </div>
             </div>
         </div>
@@ -46,6 +46,15 @@
     <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
     <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
     <script th:src="@{/js/chart.js}"></script>
-    
+    <script th:src="@{/js/document.js}"></script>
+    <script th:src="@{/js/kanban.js}"></script>
+    <script th:src="@{/js/clubMember.js}"></script>
+    <!-- datepicker -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha512-uto9mlQzrs59VwILcLiRYeLKPPbS/bT71da/OEBYEwcdNUk8jYIy+D176RYoop1Da+f9mvkYrmj5MCLZWEtQuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script th:src="@{/js/alarm.js}"></script>
+    <script th:src="@{/js/sse.js}"></script>
+ 	<script th:src="@{/js/searchClub.js}"></script> -
 </th:block>
 </html>
